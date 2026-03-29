@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>About — Talking Chloe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+    :root{--accent:#7b8fff;--accent2:#ff6eb4;--glass:rgba(15,15,35,0.72);--glass-border:rgba(100,120,255,0.18);--text-primary:#e8eaff;--text-muted:#7a80aa;}
+    body.light-mode{--glass:rgba(255,255,255,0.86);--glass-border:rgba(80,96,220,0.2);--text-primary:#1a1a3a;--text-muted:#5a6080;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#080814;min-height:100vh;color:var(--text-primary);}
+    body.light-mode{background:#f0f0ff;}
+    .bg-orb{position:fixed;border-radius:50%;filter:blur(80px);opacity:.15;pointer-events:none;z-index:0;}
+    .bg-orb1{width:500px;height:500px;background:#5060ee;top:-100px;right:-100px;}
+    .bg-orb2{width:400px;height:400px;background:#d040a0;bottom:-80px;left:-80px;}
+    .about-wrap{max-width:860px;margin:0 auto;padding:48px 20px 80px;position:relative;z-index:1;}
+
+    /* hero */
+    .about-hero{text-align:center;margin-bottom:56px;}
+    .about-hero .avatar{width:100px;height:100px;border-radius:50%;margin:0 auto 20px;background:linear-gradient(135deg,#5060ee,#ff60b0);display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 8px 40px rgba(80,96,238,0.5);}
+    .about-hero h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,#a0c8ff,#ff80d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;}
+    .about-hero p{color:var(--text-muted);font-size:1.05rem;line-height:1.7;max-width:580px;margin:0 auto;}
+
+    /* cards grid */
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-bottom:40px;}
+    .info-card{background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--glass-border);border-radius:18px;padding:28px 24px;}
+    .info-card .icon{font-size:1.8rem;margin-bottom:14px;}
+    .info-card h3{font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;}
+    .info-card p{font-size:0.88rem;color:var(--text-muted);line-height:1.6;}
+
+    /* tech stack */
+    .tech-section{background:var(--glass);backdrop-filter:blur(18px);border:1px solid var(--glass-border);border-radius:18px;padding:32px;margin-bottom:28px;}
+    .tech-section h2{font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .tech-pills{display:flex;flex-wrap:wrap;gap:10px;}
+    .tech-pill{padding:7px 16px;border-radius:30px;font-size:0.82rem;font-weight:600;border:1px solid var(--glass-border);background:rgba(255,255,255,0.05);color:var(--text-primary);display:flex;align-items:center;gap:6px;}
+    .tech-pill i{font-size:0.9rem;}
+    .pill-blue i{color:#60a0ff;} .pill-pink i{color:#ff80c0;} .pill-green i{color:#60dd90;}
+    .pill-yellow i{color:#ffcc40;} .pill-purple i{color:#c080ff;}
+
+    /* cta */
+    .about-cta{text-align:center;padding:40px;background:var(--glass);backdrop-filter:blur(18px);border:1px solid var(--glass-border);border-radius:18px;}
+    .about-cta h2{font-size:1.5rem;font-weight:800;margin-bottom:10px;background:linear-gradient(135deg,#a0c8ff,#ff80d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .about-cta p{color:var(--text-muted);margin-bottom:24px;font-size:0.95rem;}
+    .cta-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 32px;background:linear-gradient(135deg,#5060ee,#9050ff);color:#fff;border:none;border-radius:14px;font-size:1rem;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(80,96,238,0.4);transition:all .22s;}
+    .cta-btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(80,96,238,0.55);}
+    </style>
+</head>
+<body>
+<div class="bg-orb bg-orb1"></div>
+<div class="bg-orb bg-orb2"></div>
+{% include 'navbar.html' %}
+<div class="about-wrap">
+    <div class="about-hero">
+        <div class="avatar">💝</div>
+        <h1>About Talking Chloe</h1>
+        <p>An AI girlfriend experience powered by cutting-edge language models, real-time 3D rendering, and computer vision — built with love for immersive conversations.</p>
+    </div>
+
+    <div class="cards-grid">
+        <div class="info-card">
+            <div class="icon">🤖</div>
+            <h3>AI-Powered Brain</h3>
+            <p>Chloe uses Groq's llama-3.3-70b model for ultra-fast, emotionally intelligent responses in Hindi, English, and Hinglish.</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">📹</div>
+            <h3>Computer Vision</h3>
+            <p>Real-time camera analysis detects your mood and clothing color — Chloe reacts to what she sees on your webcam!</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">🎭</div>
+            <h3>3D Animations</h3>
+            <p>Chloe is a fully rigged 3D model with idle breathing, blinking, lip sync, and action animations like hip-hop, catwalk, and kiss.</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">🌐</div>
+            <h3>Multilingual</h3>
+            <p>Switch between Hindi, English (IN), and English (US) during calls. Chloe replies in proper Hindi script — not just Hinglish!</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">🔒</div>
+            <h3>Private by Design</h3>
+            <p>Your chat history is stored locally in your own database. Login is optional — you can always chat as a guest.</p>
+        </div>
+        <div class="info-card">
+            <div class="icon">⚡</div>
+            <h3>Blazing Fast</h3>
+            <p>Groq's LPU inference delivers responses in under a second, making conversations feel natural and real-time.</p>
+        </div>
+    </div>
+
+    <div class="tech-section">
+        <h2><i class="fa-solid fa-code" style="color:var(--accent)"></i> Tech Stack</h2>
+        <div class="tech-pills">
+            <span class="tech-pill pill-green"><i class="fa-brands fa-python"></i> Django 5</span>
+            <span class="tech-pill pill-yellow"><i class="fa-solid fa-database"></i> SQLite</span>
+            <span class="tech-pill pill-blue"><i class="fa-solid fa-cube"></i> Three.js r160</span>
+            <span class="tech-pill pill-purple"><i class="fa-solid fa-brain"></i> Groq API</span>
+            <span class="tech-pill pill-blue"><i class="fa-solid fa-eye"></i> Canvas CV</span>
+            <span class="tech-pill pill-pink"><i class="fa-solid fa-microphone"></i> Web Speech API</span>
+            <span class="tech-pill pill-yellow"><i class="fa-solid fa-image"></i> EXR HDR Lighting</span>
+            <span class="tech-pill pill-green"><i class="fa-solid fa-person-walking"></i> Mixamo Animations</span>
+            <span class="tech-pill pill-purple"><i class="fa-solid fa-film"></i> GLTF 3D Models</span>
+            <span class="tech-pill pill-blue"><i class="fa-brands fa-font-awesome"></i> Font Awesome 6</span>
+        </div>
+    </div>
+
+    <div class="about-cta">
+        <h2>Start Talking to Chloe 💝</h2>
+        <p>Login for a personalized experience, or just jump straight in!</p>
+        <a href="/" class="cta-btn"><i class="fa-solid fa-comment-dots"></i> Open Chat</a>
+    </div>
+</div>
+<script>
+(function(){ var t=localStorage.getItem('chloe-theme'); if(t==='light') document.body.classList.add('light-mode'); })();
+</script>
+</body>
+</html>

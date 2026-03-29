@@ -1,0 +1,159 @@
+{% load static %}
+<!-- =============================================
+     NAVBAR — Talking Chloe
+============================================== -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+:root {
+    --nav-h: 58px;
+    --glass: rgba(15,15,35,0.72);
+    --glass-border: rgba(100,120,255,0.18);
+    --accent: #7b8fff;
+    --accent2: #ff6eb4;
+    --text-primary: #e8eaff;
+    --text-muted: #7a80aa;
+}
+
+.navbar {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: var(--nav-h);
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-brand {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #a0d0ff;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 28px;
+}
+
+.nav-link {
+    color: #c0c8ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.theme-toggle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.18);
+}
+
+.btn {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+}
+
+.btn-login {
+    background: transparent;
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+}
+
+.btn-login:hover {
+    background: var(--accent);
+    color: white;
+}
+</style>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="/" class="nav-brand">Talking Chloe ❤️</a>
+        
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/about" class="nav-link">About</a>
+            <a href="#" onclick="newChat()" class="nav-link">New Chat</a>
+        </div>
+    </div>
+
+    <div class="nav-right">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+        
+        {% if user.is_authenticated %}
+            <span style="color:#88ffcc; font-size:0.92rem;">Hi, {{ user.username }} 👋</span>
+            <a href="/logout" class="btn">Logout</a>
+        {% else %}
+            <a href="/login" class="btn btn-login">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<script>
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const icon = document.getElementById('theme-icon');
+    if (document.body.classList.contains('light-mode')) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        localStorage.setItem('chloe-theme', 'light');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+        localStorage.setItem('chloe-theme', 'dark');
+    }
+}
+
+// Load saved theme
+if (localStorage.getItem('chloe-theme') === 'light') {
+    document.body.classList.add('light-mode');
+    document.getElementById('theme-icon').classList.add('fa-sun');
+    document.getElementById('theme-icon').classList.remove('fa-moon');
+}
+
+function newChat() {
+    if (confirm("Naya chat start karna hai? Current chat clear ho jayega.")) {
+        window.location.href = "/";
+    }
+}
+</script>

@@ -1,0 +1,7 @@
+myenv/
+*.mp4
+*.exr
+*.glb
+*.sqlite3
+.env
+__pycache__/

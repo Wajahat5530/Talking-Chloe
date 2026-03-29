@@ -1,0 +1,669 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Talking Chloe 💝</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+    :root{
+        --accent:#7b8fff;--accent2:#ff6eb4;
+        --glass:rgba(15,15,35,0.72);--glass-border:rgba(100,120,255,0.18);
+        --text-primary:#e8eaff;--text-muted:#7a80aa;
+        --bg-deep:#080814;--bg-mid:#0f0f1a;--bg-panel:#16162b;
+        --input-bg:rgba(255,255,255,0.05);--input-border:rgba(100,120,255,0.22);
+        --danger:#ff4d6d;--success:#22d98a;
+        --radius:14px;--nav-h:58px;
+    }
+    body.light-mode{
+        --glass:rgba(255,255,255,0.86);--glass-border:rgba(80,96,220,0.2);
+        --text-primary:#1a1a3a;--text-muted:#5a6080;
+        --bg-deep:#eef0ff;--bg-mid:#f4f4ff;--bg-panel:#e8eaff;
+        --input-bg:rgba(80,96,220,0.06);--input-border:rgba(80,96,220,0.2);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+        background:var(--bg-deep);color:var(--text-primary);
+        min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;
+    }
+    .bg-orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.1;pointer-events:none;z-index:0;animation:orbFloat 10s ease-in-out infinite alternate;}
+    .bg-orb1{width:600px;height:600px;background:#3040cc;top:-150px;left:-150px;}
+    .bg-orb2{width:500px;height:500px;background:#cc3090;bottom:-100px;right:-100px;animation-delay:4s;}
+    @keyframes orbFloat{from{transform:scale(1);}to{transform:scale(1.08) translate(20px,20px);}}
+
+    /* ── BG BAR ── */
+    #bg-bar{
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        padding:6px 16px;
+        background:var(--glass);backdrop-filter:blur(12px);
+        border-bottom:1px solid var(--glass-border);
+        flex-wrap:wrap;position:relative;z-index:10;
+    }
+    #bg-label{font-size:.8rem;color:var(--text-muted);min-width:100px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
+    .nav-btn{
+        width:32px;height:32px;border-radius:50%;
+        background:rgba(255,255,255,.06);border:1px solid var(--glass-border);
+        color:var(--text-muted);font-size:.9rem;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        transition:all .2s;padding:0;
+    }
+    .nav-btn:hover{background:rgba(120,130,255,.15);color:var(--accent);}
+    #upload-btn{
+        padding:4px 12px;font-size:.78rem;font-weight:600;
+        background:rgba(255,255,255,.05);color:var(--text-muted);
+        border:1px solid var(--glass-border);border-radius:20px;cursor:pointer;
+        transition:all .2s;white-space:nowrap;
+    }
+    #upload-btn:hover{background:rgba(120,130,255,.12);color:var(--accent);}
+    #exr-file-input{display:none;}
+    #bg-loading{font-size:.72rem;color:var(--accent);}
+
+    /* ── MAIN AREA ── */
+    #main-area{flex:1;display:flex;position:relative;min-height:340px;z-index:1;}
+    #chloe-container{flex:1;background:#08080f;position:relative;overflow:hidden;}
+
+    /* ── SIDEBAR ── */
+    #action-sidebar{
+        width:62px;
+        background:var(--glass);backdrop-filter:blur(16px);
+        border-left:1px solid var(--glass-border);
+        display:flex;flex-direction:column;align-items:center;
+        gap:6px;padding:10px 5px;overflow-y:auto;
+    }
+    .action-btn{
+        width:46px;height:46px;border-radius:13px;
+        background:rgba(255,255,255,.04);border:1px solid var(--glass-border);
+        color:var(--text-primary);font-size:1.3rem;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        transition:all .2s;padding:0;flex-direction:column;gap:1px;
+    }
+    .action-btn span.lbl{font-size:.38rem;color:var(--text-muted);letter-spacing:.03em;text-transform:uppercase;}
+    .action-btn:hover{background:rgba(120,130,255,.15);border-color:rgba(120,130,255,.4);transform:scale(1.07);}
+    .action-btn.active{background:rgba(80,96,238,.25);border-color:rgba(120,130,255,.5);box-shadow:0 0 12px rgba(80,140,255,.3);}
+    #btn-call{border-color:rgba(34,204,102,.3);}
+    #btn-call:hover,#btn-audiocall:hover{border-color:rgba(34,204,102,.6);}
+    #btn-call.in-call,#btn-audiocall.in-call{background:rgba(200,30,30,.25);border-color:rgba(255,60,60,.5);}
+
+    /* overlays */
+    #angry-flash{display:none;position:absolute;inset:0;background:rgba(255,30,0,.18);pointer-events:none;z-index:10;}
+    @keyframes flashAnim{0%{opacity:1;}100%{opacity:0;}}
+    #exr-toast{
+        position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+        background:var(--glass);backdrop-filter:blur(16px);
+        color:var(--text-primary);font-size:.9rem;
+        padding:8px 20px;border-radius:20px;border:1px solid var(--glass-border);
+        pointer-events:none;z-index:20;opacity:0;transition:opacity .4s;
+        white-space:nowrap;max-width:90%;text-align:center;
+    }
+    #exr-toast.show{opacity:1;}
+    #cv-status{
+        position:absolute;top:10px;left:10px;
+        background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+        color:#88ffcc;font-size:.7rem;padding:4px 10px;
+        border-radius:10px;z-index:15;display:none;max-width:230px;
+        border:1px solid rgba(34,204,102,.2);
+    }
+
+    /* ── CALL MODAL ── */
+    #call-modal{
+        display:none;position:fixed;inset:0;
+        background:rgba(0,0,0,.92);z-index:1000;
+        flex-direction:column;align-items:center;justify-content:center;
+    }
+    #call-modal.open{display:flex;}
+    #call-inner{
+        width:96vw;max-width:1080px;height:90vh;
+        display:flex;flex-direction:column;gap:10px;
+    }
+    #call-header{display:flex;align-items:center;justify-content:space-between;padding:0 4px;}
+    #call-title{font-size:1.05rem;font-weight:700;color:var(--accent);}
+    #call-status{
+        font-size:.78rem;color:var(--success);
+        background:rgba(34,217,138,.1);padding:3px 10px;
+        border-radius:10px;border:1px solid rgba(34,217,138,.3);
+    }
+    #end-call-btn{
+        padding:7px 18px;background:linear-gradient(135deg,#cc2222,#ff4040);
+        color:#fff;border:none;border-radius:12px;cursor:pointer;
+        font-weight:700;font-size:.85rem;
+        box-shadow:0 2px 12px rgba(200,30,30,.4);
+    }
+    #end-call-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(200,30,30,.6);}
+    #call-screens{flex:1;display:flex;gap:12px;min-height:0;}
+    #call-chloe{
+        flex:1;background:#06060f;border-radius:16px;
+        border:1px solid var(--glass-border);position:relative;overflow:hidden;
+    }
+    #call-user{
+        width:290px;background:var(--glass);backdrop-filter:blur(12px);
+        border-radius:16px;border:1px solid rgba(34,204,102,.25);
+        position:relative;overflow:hidden;display:flex;flex-direction:column;
+    }
+    #user-video{flex:1;width:100%;object-fit:cover;border-radius:14px 14px 0 0;background:#000;transform:scaleX(-1);}
+    #cv-panel{
+        padding:8px 12px;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);
+        border-top:1px solid rgba(34,204,102,.2);font-size:.76rem;
+        color:#88ffcc;min-height:52px;
+    }
+    #cv-panel .cv-row{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+    #cv-panel .cv-label{color:var(--text-muted);min-width:44px;}
+    #cv-color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.2);flex-shrink:0;}
+
+    /* lang bar */
+    #lang-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:4px 0;}
+    .lang-pill{
+        padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:700;
+        cursor:pointer;border:1px solid var(--glass-border);
+        background:rgba(255,255,255,.05);color:var(--text-muted);transition:all .2s;
+    }
+    .lang-pill.active{background:rgba(80,96,238,.25);border-color:rgba(120,130,255,.5);color:var(--accent);}
+    .lang-pill:hover{background:rgba(120,130,255,.12);}
+
+    /* call controls */
+    #call-controls{display:flex;align-items:center;justify-content:center;gap:14px;padding:4px 0;}
+    .call-ctrl{
+        width:48px;height:48px;border-radius:50%;
+        border:1.5px solid var(--glass-border);
+        background:rgba(255,255,255,.06);color:var(--text-primary);
+        font-size:1.2rem;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;transition:all .2s;
+    }
+    .call-ctrl:hover{background:rgba(120,130,255,.15);transform:scale(1.1);}
+    .call-ctrl.active{background:rgba(34,204,102,.15);border-color:rgba(34,204,102,.5);}
+    #call-mic-btn.listening{background:rgba(200,30,30,.3);border-color:rgba(255,60,60,.6);}
+    #face-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;transform:scaleX(-1);}
+    #cv-canvas{display:none;}
+
+    /* ── CHAT AREA ── */
+    #chat-area{
+        padding:14px 16px;
+        background:var(--glass);backdrop-filter:blur(16px);
+        border-top:1px solid var(--glass-border);
+        display:flex;flex-direction:column;gap:10px;
+        position:relative;z-index:10;
+    }
+    #input-area{display:flex;gap:10px;flex-wrap:wrap;}
+    #msg{
+        flex:1;min-width:200px;padding:13px 18px;font-size:1rem;
+        border:1px solid var(--input-border);border-radius:13px;
+        background:var(--input-bg);color:var(--text-primary);outline:none;transition:all .2s;
+    }
+    #msg:focus{border-color:var(--accent);background:rgba(120,130,255,.08);box-shadow:0 0 0 3px rgba(120,130,255,.15);}
+    #msg::placeholder{color:var(--text-muted);}
+    #send-btn{
+        padding:0 22px;font-size:1rem;font-weight:700;
+        background:linear-gradient(135deg,#5060ee,#9050ff);color:#fff;border:none;
+        border-radius:13px;cursor:pointer;transition:all .2s;min-height:48px;
+        box-shadow:0 2px 14px rgba(80,96,238,.35);
+    }
+    #send-btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(80,96,238,.55);}
+    #mic-btn{
+        background:linear-gradient(135deg,#ee2d55,#ff6090);font-size:1.2rem;
+        padding:0 16px;min-width:50px;border:none;border-radius:13px;
+        color:#fff;cursor:pointer;transition:all .2s;min-height:48px;
+    }
+    #mic-btn.listening{background:linear-gradient(135deg,#cc0033,#ee3060);box-shadow:0 0 14px rgba(255,0,60,.5);}
+    #mic-btn:hover{transform:translateY(-1px);}
+    #reply{
+        padding:14px 18px;font-size:1rem;line-height:1.65;
+        background:var(--input-bg);border-radius:13px;
+        border:1px solid var(--glass-border);white-space:pre-wrap;min-height:68px;
+        color:var(--text-primary);
+    }
+
+    @media(max-width:700px){
+        #action-sidebar{width:50px;}
+        .action-btn{width:38px;height:38px;font-size:1.1rem;}
+        #call-user{width:130px;}
+        #send-btn{padding:0 14px;}
+    }
+    </style>
+</head>
+<body>
+<div class="bg-orb bg-orb1"></div>
+<div class="bg-orb bg-orb2"></div>
+
+{% include 'navbar.html' %}
+
+<div id="bg-bar">
+    <button class="nav-btn" onclick="changeEXR(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+    <span id="bg-label">Studio Small</span>
+    <button class="nav-btn" onclick="changeEXR(1)"><i class="fa-solid fa-chevron-right"></i></button>
+    <label id="upload-btn"><i class="fa-solid fa-upload"></i> EXR
+        <input type="file" id="exr-file-input" accept=".exr" onchange="uploadEXR(this)"/>
+    </label>
+    <span id="bg-loading" style="display:none;font-size:.72rem;color:var(--accent)"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading...</span>
+</div>
+
+<div id="main-area">
+    <div id="chloe-container">
+        <div id="angry-flash"></div>
+        <div id="exr-toast"></div>
+        <div id="cv-status"></div>
+    </div>
+    <div id="action-sidebar">
+        <button class="action-btn" id="btn-idle"      onclick="triggerAction('idle')"    title="Idle">😐<span class="lbl">Idle</span></button>
+        <button class="action-btn" id="btn-hiphop"    onclick="triggerAction('hiphop')"  title="Hip Hop">🕺<span class="lbl">Dance</span></button>
+        <button class="action-btn" id="btn-angry"     onclick="triggerAction('angry')"   title="Angry">😠<span class="lbl">Angry</span></button>
+        <button class="action-btn" id="btn-catwalk"   onclick="triggerAction('catwalk')" title="Catwalk">👠<span class="lbl">Walk</span></button>
+        <button class="action-btn" id="btn-kiss"      onclick="triggerAction('kiss')"    title="Kiss">💋<span class="lbl">Kiss</span></button>
+        <div style="width:100%;height:1px;background:var(--glass-border);margin:2px 0;"></div>
+        <button class="action-btn" id="btn-call"      onclick="startCall('video')"       title="Video Call">📹<span class="lbl">Video</span></button>
+        <button class="action-btn" id="btn-audiocall" onclick="startCall('audio')"       title="Voice Call">📞<span class="lbl">Call</span></button>
+    </div>
+</div>
+
+<!-- ── CALL MODAL ── -->
+<div id="call-modal">
+    <div id="call-inner">
+        <div id="call-header">
+            <span id="call-title"><i class="fa-solid fa-video"></i> Video Call — Chloe 💝</span>
+            <span id="call-status"><i class="fa-solid fa-circle fa-beat" style="font-size:.5rem"></i> Connecting...</span>
+            <button id="end-call-btn" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i> End Call</button>
+        </div>
+        <div id="lang-bar">
+            <span style="font-size:.72rem;color:var(--text-muted);"><i class="fa-solid fa-language"></i></span>
+            <button class="lang-pill active" id="pill-hi"  onclick="setLang('hi-IN')">🇮🇳 हिंदी</button>
+            <button class="lang-pill"        id="pill-en"  onclick="setLang('en-IN')">🇬🇧 English (IN)</button>
+            <button class="lang-pill"        id="pill-us"  onclick="setLang('en-US')">🇺🇸 English (US)</button>
+        </div>
+        <div id="call-screens">
+            <div id="call-chloe"></div>
+            <div id="call-user">
+                <video id="user-video" autoplay muted playsinline></video>
+                <canvas id="face-canvas"></canvas>
+                <canvas id="cv-canvas"></canvas>
+                <div id="cv-panel">
+                    <div class="cv-row"><span class="cv-label">Mood:</span><span id="cv-reading">starting...</span></div>
+                    <div class="cv-row"><span class="cv-label">Color:</span><span id="cv-color-dot" style="background:#333;"></span><span id="cv-color-name">—</span></div>
+                </div>
+            </div>
+        </div>
+        <div id="call-controls">
+            <button class="call-ctrl" id="call-mic-btn"  onclick="toggleCallMic()" title="Mic"><i class="fa-solid fa-microphone"></i></button>
+            <button class="call-ctrl active" id="call-cam-btn" onclick="toggleCam()"  title="Camera"><i class="fa-solid fa-camera"></i></button>
+            <button class="call-ctrl" id="call-ask-btn"  onclick="sendCVMessage(false)" title="Ask Chloe"><i class="fa-solid fa-comment"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- ── CHAT ── -->
+<div id="chat-area">
+    <div id="input-area">
+        <input type="text" id="msg" placeholder="Type karo ya bol do... 🎤" autocomplete="off"/>
+        <button id="send-btn" onclick="sendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+        <button id="mic-btn"  onclick="toggleVoice()"><i class="fa-solid fa-microphone"></i></button>
+    </div>
+    <div id="reply">
+        {% if request.session.user_id %}Wapas aa gaye, {{ request.session.username }}! Kya baat karein? 💝{% else %}Waiting for your message... 💭{% endif %}
+    </div>
+</div>
+
+<script>
+var GLB_MAIN   = "{% static 'models/chloe.glb' %}";
+var ACTION_GLBS = {
+    hiphop:"{% static 'models/Hip Hop Dancing.glb' %}",
+    angry:"{% static 'models/angry.glb' %}",
+    catwalk:"{% static 'models/chloe catwalk.glb' %}",
+    kiss:"{% static 'models/kiss.glb' %}"
+};
+var EXR_LIST = [
+    {name:"Studio Small", path:"{% static 'hdr/studio_small_03_4k.exr' %}",     msg:"Back in the studio! Lights, camera, action! 🎬✨"},
+    {name:"Venice Sunset",path:"{% static 'hdr/venice_sunset_4k.exr' %}",        msg:"Ooh la la... Venice ki shaam! 🌅 Bahut romantic hai yaar!"},
+    {name:"Snow Fall",    path:"{% static 'hdr/snow fall.exr' %}",                msg:"Brrr! ❄️ Itni thand! Koi coat lao mujhe please!!"},
+    {name:"Restorent",    path:"{% static 'hdr/restorent.exr' %}",                msg:"Ooh, restaurant! 🍽️ Kya order karein? Main toh bhookhi hoon!"},
+    {name:"Gardens",      path:"{% static 'hdr/gardens.exr' %}",                  msg:"Ooh so you're taking me to the garden? 🌸 How romantic!"},
+    {name:"Glasshouse",   path:"{% static 'hdr/glasshouse_interior_4k.exr' %}",  msg:"Wow, glasshouse! 🪴 Itna sundar! Main yahan rehna chahti hoon!"}
+];
+var ANGRY_LINES=[
+    "Kya kar raha hai tu!! 😡 Haath hatao mujhse!!",
+    "Oye chhichhore!! Sharam nahi aati?! 😠",
+    "Teri himmat kaise hui!! Bilkul badtameez!! 🤬",
+    "Aur haath lagaya toh seedha thappad padega!! 😤",
+    "YE KYA HARKAT HAI?! Chal nikal yahan se!! 😡"
+];
+
+/* ── STATE ── */
+var currentLang='hi-IN',cvMood='',cvColor='';
+var cvActive=false,cvInterval=null,cvAutoTimer=null;
+var callStream=null,callCamOn=false,callMode='video';
+var recognition=null,isListening=false;
+var callRecog=null,callListening=false;
+var _voices=[];
+
+/* ── VOICES ── */
+if(window.speechSynthesis){
+    window.speechSynthesis.onvoiceschanged=function(){_voices=window.speechSynthesis.getVoices();};
+    _voices=window.speechSynthesis.getVoices();
+}
+function pickFemaleVoice(){
+    var want=['Google UK English Female','Microsoft Heera Online (Natural) - English (India)','Microsoft Zira Desktop - English (United States)','Google US English','Samantha','Victoria','Karen','Tessa','Moira'];
+    for(var i=0;i<want.length;i++){var v=_voices.find(function(x){return x.name===want[i];});if(v)return v;}
+    var f=_voices.find(function(x){return /female|woman|zira|heera|veena|raveena|siri/i.test(x.name);});
+    return f||_voices.find(function(x){return /en-IN|en_IN|en-GB/i.test(x.lang);})||null;
+}
+window.speakText=function(text){
+    if(!window.speechSynthesis)return;
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    var isHindi=/[\u0900-\u097F]/.test(text);
+    u.lang=isHindi?'hi-IN':currentLang;
+    u.pitch=1.28;u.rate=0.88;u.volume=1.0;
+    if(!isHindi){var v=pickFemaleVoice();if(v)u.voice=v;}
+    u.onstart=function(){window._isSpeaking=true;};
+    u.onend=u.onerror=function(){window._isSpeaking=false;};
+    window.speechSynthesis.speak(u);
+};
+
+function showReply(t){document.getElementById('reply').innerText=t;}
+
+/* ── LANG ── */
+window.setLang=function(lang){
+    currentLang=lang;
+    document.querySelectorAll('.lang-pill').forEach(function(p){p.classList.remove('active');});
+    var map={'hi-IN':'pill-hi','en-IN':'pill-en','en-US':'pill-us'};
+    var el=document.getElementById(map[lang]);if(el)el.classList.add('active');
+    if(recognition)recognition.lang=lang;
+    if(callRecog)callRecog.lang=lang;
+    showReply('Language set: '+lang+' 🌐');
+};
+
+/* ── EMOTION ── */
+function detectEmotion(text){
+    if(/😠|😡|angry|gussa|naraaz/i.test(text))return'angry';
+    if(/💃|dance|nacho|party|hip.?hop/i.test(text))return'hiphop';
+    if(/👠|catwalk|walk|strut/i.test(text))return'catwalk';
+    if(/💋|kiss|muah/i.test(text))return'kiss';
+    return null;
+}
+
+/* ── SEND MSG ── */
+window.sendMsg=async function(){
+    var txt=document.getElementById('msg').value.trim();
+    if(!txt)return;
+    document.getElementById('msg').value='';
+    await sendWithCV(txt);
+};
+window.sendWithCV=async function(txt){
+    if(!txt)return;
+    showReply('Chloe soch rahi hai... 💭');
+    try{
+        var p=new URLSearchParams({msg:txt,lang:currentLang});
+        if(cvMood)p.set('cv_mood',cvMood);
+        if(cvColor)p.set('cv_color',cvColor);
+        var res=await fetch('/chat?'+p.toString());
+        if(!res.ok)throw new Error('err');
+        var data=await res.json();
+        var reply=data.response||'Hehe!';
+        showReply(reply);
+        var em=detectEmotion(reply);
+        if(em&&window.triggerAction)window.triggerAction(em);
+        speakText(reply);
+    }catch(e){showReply('Server se connect nahi hua 😢 Try again!');}
+};
+window.sendCVMessage=function(auto){
+    var txt=auto?'Mujhe dekh ke kuch bolo':(document.getElementById('msg').value.trim()||'Mujhe dekh ke kuch bolo');
+    if(!auto)document.getElementById('msg').value='';
+    sendWithCV(txt);
+};
+document.getElementById('msg').addEventListener('keypress',function(e){if(e.key==='Enter')window.sendMsg();});
+
+/* ── MIC (main) ── */
+window.toggleVoice=function(){
+    var btn=document.getElementById('mic-btn');
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert('Mic sirf Chrome/Edge mein kaam karta hai');return;}
+    if(!recognition){
+        recognition=new SR();recognition.continuous=false;recognition.interimResults=false;recognition.maxAlternatives=1;
+        recognition.onresult=function(e){
+            var t=e.results[0][0].transcript.trim();
+            document.getElementById('msg').value=t;
+            btn.innerHTML='<i class="fa-solid fa-microphone"></i>';btn.classList.remove('listening');isListening=false;window.sendMsg();
+        };
+        recognition.onerror=recognition.onend=function(){
+            btn.innerHTML='<i class="fa-solid fa-microphone"></i>';btn.classList.remove('listening');isListening=false;
+        };
+    }
+    recognition.lang=currentLang;
+    if(!isListening){
+        try{recognition.start();isListening=true;btn.innerHTML='<i class="fa-solid fa-stop"></i>';btn.classList.add('listening');showReply('Bol na jaan... sun rahi hoon 🎙️');}
+        catch(e){recognition=null;}
+    }else{recognition.stop();}
+};
+
+/* ── CALL MIC ── */
+window.toggleCallMic=function(){
+    var btn=document.getElementById('call-mic-btn');
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert('Chrome/Edge zaroori hai');return;}
+    if(!callRecog){
+        callRecog=new SR();callRecog.continuous=false;callRecog.interimResults=false;callRecog.maxAlternatives=1;
+        callRecog.onresult=function(e){
+            var t=e.results[0][0].transcript.trim();
+            document.getElementById('msg').value=t;
+            btn.classList.remove('listening');callListening=false;sendWithCV(t);
+        };
+        callRecog.onerror=callRecog.onend=function(){btn.classList.remove('listening');callListening=false;};
+    }
+    callRecog.lang=currentLang;
+    if(!callListening){
+        try{callRecog.start();callListening=true;btn.classList.add('listening');showReply('Bol raha hoon... 🎙️');}
+        catch(e){callRecog=null;}
+    }else{callRecog.stop();}
+};
+
+/* ── CALL ── */
+window.startCall=async function(mode){
+    callMode=mode||'video';
+    document.getElementById('call-modal').classList.add('open');
+    document.getElementById('call-status').innerHTML='<i class="fa-solid fa-circle fa-beat" style="font-size:.5rem"></i> Connecting...';
+    document.getElementById('btn-call').classList.add('in-call');
+    document.getElementById('btn-audiocall').classList.add('in-call');
+    document.getElementById('call-title').innerHTML=callMode==='video'?'<i class="fa-solid fa-video"></i> Video Call — Chloe 💝':'<i class="fa-solid fa-phone"></i> Voice Call — Chloe 💝';
+
+    var chloeDiv=document.getElementById('call-chloe');
+    if(window.renderer&&window.renderer.domElement){
+        chloeDiv.appendChild(window.renderer.domElement);
+        setTimeout(function(){var w=chloeDiv.clientWidth||600,h=chloeDiv.clientHeight||400;window.renderer.setSize(w,h);window.camera.aspect=w/h;window.camera.updateProjectionMatrix();},120);
+    }
+    try{
+        var c={audio:true};
+        if(callMode==='video')c.video={width:640,height:480,facingMode:'user'};
+        callStream=await navigator.mediaDevices.getUserMedia(c);
+        document.getElementById('user-video').srcObject=callStream;
+        callCamOn=callMode==='video';
+        document.getElementById('call-cam-btn').classList.toggle('active',callCamOn);
+        document.getElementById('call-status').innerHTML='<i class="fa-solid fa-circle" style="color:#22d98a;font-size:.5rem"></i> Live';
+        if(callMode==='video')startCVLoop();
+        var greet=callMode==='video'?'Aww baby! Video call pe aa gaye! 😍📹':'Heyy jaan! Awaaz sunna chahti thi 😘📞';
+        showReply(greet);speakText(greet);
+        cvAutoTimer=setInterval(function(){if(cvMood)sendCVMessage(true);},35000);
+    }catch(err){
+        document.getElementById('call-status').innerHTML='⚠ Camera unavailable';
+        var msg='Camera nahi mili baby 🥺 Par main hoon yahan!';showReply(msg);speakText(msg);
+    }
+};
+window.endCall=function(){
+    document.getElementById('call-modal').classList.remove('open');
+    document.getElementById('btn-call').classList.remove('in-call');
+    document.getElementById('btn-audiocall').classList.remove('in-call');
+    if(callStream){callStream.getTracks().forEach(function(t){t.stop();});callStream=null;}
+    stopCVLoop();
+    if(cvAutoTimer){clearInterval(cvAutoTimer);cvAutoTimer=null;}
+    if(callRecog){try{callRecog.stop();}catch(e){}callRecog=null;callListening=false;}
+    document.getElementById('call-mic-btn').classList.remove('listening');
+    var origDiv=document.getElementById('chloe-container');
+    if(window.renderer&&window.renderer.domElement){
+        origDiv.appendChild(window.renderer.domElement);
+        setTimeout(function(){var w=origDiv.clientWidth||600,h=origDiv.clientHeight||400;window.renderer.setSize(w,h);window.camera.aspect=w/h;window.camera.updateProjectionMatrix();},120);
+    }
+    var bye='Bye jaan! Jaldi aana wapas 💔 Miss karoongi tumhe!';showReply(bye);speakText(bye);
+};
+window.toggleCam=function(){
+    if(!callStream)return;callCamOn=!callCamOn;
+    callStream.getVideoTracks().forEach(function(t){t.enabled=callCamOn;});
+    document.getElementById('call-cam-btn').classList.toggle('active',callCamOn);
+    if(!callCamOn)stopCVLoop();else startCVLoop();
+};
+
+/* ── CV (Pure canvas, no CDN) ── */
+function startCVLoop(){
+    cvActive=true;document.getElementById('cv-status').style.display='block';
+    document.getElementById('cv-reading').textContent='scanning...';
+    if(cvInterval)clearInterval(cvInterval);
+    cvInterval=setInterval(runCV,1200);
+}
+function stopCVLoop(){
+    cvActive=false;if(cvInterval){clearInterval(cvInterval);cvInterval=null;}
+    document.getElementById('cv-status').style.display='none';cvMood='';cvColor='';
+}
+function runCV(){
+    if(!cvActive)return;
+    var vid=document.getElementById('user-video');
+    if(!vid||vid.readyState<2||vid.videoWidth===0){document.getElementById('cv-reading').textContent='waiting...';return;}
+    var canvas=document.getElementById('cv-canvas');
+    canvas.width=vid.videoWidth;canvas.height=vid.videoHeight;
+    var ctx=canvas.getContext('2d');ctx.drawImage(vid,0,0,canvas.width,canvas.height);
+
+    /* face region brightness */
+    var fx=Math.floor(canvas.width*.28),fy=Math.floor(canvas.height*.04);
+    var fw=Math.floor(canvas.width*.44),fh=Math.floor(canvas.height*.38);
+    var fd=ctx.getImageData(fx,fy,fw,fh).data;
+    var br=0,co=0,n=0,prev=128;
+    for(var i=0;i<fd.length;i+=12){var lum=fd[i]*.299+fd[i+1]*.587+fd[i+2]*.114;br+=lum;co+=Math.abs(lum-prev);prev=lum;n++;}
+    br=br/n;co=co/n;
+    var mood;
+    if(br>172)mood='happy 😊';
+    else if(br<62)mood='sad 😢';
+    else if(co>32)mood='surprised 😮';
+    else mood='neutral 😐';
+    cvMood=mood.split(' ')[0];
+    document.getElementById('cv-reading').textContent=mood;
+
+    /* body color */
+    var bx=Math.floor(canvas.width*.18),by=Math.floor(canvas.height*.36);
+    var bw=Math.floor(canvas.width*.64),bh=Math.floor(canvas.height*.52);
+    var bd=ctx.getImageData(bx,by,bw,bh).data;
+    var r=0,g=0,b=0,cnt=0;
+    for(var j=0;j<bd.length;j+=16){r+=bd[j];g+=bd[j+1];b+=bd[j+2];cnt++;}
+    r=Math.round(r/cnt);g=Math.round(g/cnt);b=Math.round(b/cnt);
+    cvColor=rgbToName(r,g,b);
+    document.getElementById('cv-color-dot').style.background='rgb('+r+','+g+','+b+')';
+    document.getElementById('cv-color-name').textContent=cvColor;
+    document.getElementById('cv-status').textContent='👁 '+mood+' · '+cvColor;
+
+    /* draw boxes */
+    var fc=document.getElementById('face-canvas');
+    fc.width=vid.videoWidth;fc.height=vid.videoHeight;
+    var fctx=fc.getContext('2d');fctx.clearRect(0,0,fc.width,fc.height);
+    fctx.strokeStyle='#22cc66';fctx.lineWidth=2;fctx.strokeRect(fx,fy,fw,fh);
+    fctx.fillStyle='rgba(34,204,102,.7)';fctx.font='13px sans-serif';fctx.fillText(mood,fx+4,fy+16);
+    fctx.strokeStyle='#4488ff';fctx.strokeRect(bx,by,bw,bh);
+    fctx.fillStyle='rgba(68,136,255,.7)';fctx.fillText(cvColor,bx+4,by+16);
+}
+function rgbToName(r,g,b){
+    var mx=Math.max(r,g,b),mn=Math.min(r,g,b),v=mx/255,s=mx===0?0:(mx-mn)/mx;
+    if(v<.18)return'black / dark';if(s<.14)return v>.82?'white / light':'grey';
+    var h=rgbToHue(r,g,b);
+    if(h<15||h>=345)return'red';if(h<40)return'orange';if(h<70)return'yellow';
+    if(h<155)return'green';if(h<185)return'cyan';if(h<260)return'blue';
+    if(h<290)return'purple';return'pink';
+}
+function rgbToHue(r,g,b){
+    r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn,h=0;
+    if(!d)return 0;
+    if(mx===r)h=((g-b)/d+(g<b?6:0))/6;else if(mx===g)h=((b-r)/d+2)/6;else h=((r-g)/d+4)/6;
+    return h*360;
+}
+
+/* theme persist */
+(function(){var t=localStorage.getItem('chloe-theme');if(t==='light')document.body.classList.add('light-mode');})();
+</script>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import{GLTFLoader}from 'three/addons/loaders/GLTFLoader.js';
+import{OrbitControls}from 'three/addons/controls/OrbitControls.js';
+import{EXRLoader}from 'three/addons/loaders/EXRLoader.js';
+
+const container=document.getElementById('chloe-container');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x06060f);
+const camera=new THREE.PerspectiveCamera(45,container.clientWidth/container.clientHeight,.01,1000);
+window.camera=camera;
+window.renderer=new THREE.WebGLRenderer({antialias:true});
+const renderer=window.renderer;
+renderer.setSize(container.clientWidth,container.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.08;controls.zoomSpeed=.8;controls.rotateSpeed=.6;
+controls.minPolarAngle=Math.PI*.05;controls.maxPolarAngle=Math.PI*.88;
+controls.screenSpacePanning=false;controls.enablePan=false;
+
+scene.add(new THREE.AmbientLight(0xffffff,.5));
+const dirLight=new THREE.DirectionalLight(0xffffff,1.4);
+dirLight.position.set(4,12,8);dirLight.castShadow=true;
+dirLight.shadow.mapSize.width=dirLight.shadow.mapSize.height=2048;
+dirLight.shadow.camera.near=.1;dirLight.shadow.camera.far=200;dirLight.shadow.bias=-.001;
+scene.add(dirLight);
+
+const exrLoader=new EXRLoader();let currentEXR=null,exrIndex=0,toastTimer=null;
+function showToast(msg){const t=document.getElementById('exr-toast');t.textContent=msg;t.classList.add('show');if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3500);}
+function loadEXRFromPath(path,name,msg){
+    document.getElementById('bg-loading').style.display='inline';
+    document.getElementById('bg-label').textContent=name||path.split('/').pop();
+    exrLoader.load(path,tex=>{
+        tex.mapping=THREE.EquirectangularReflectionMapping;
+        if(currentEXR)currentEXR.dispose();currentEXR=tex;scene.environment=tex;scene.background=tex;
+        document.getElementById('bg-loading').style.display='none';
+        if(msg){showToast(msg);speakText(msg);document.getElementById('reply').innerText=msg;}
+    },undefined,e=>{document.getElementById('bg-loading').style.display='none';console.error('EXR:',e);});
+}
+if(EXR_LIST.length)loadEXRFromPath(EXR_LIST[0].path,EXR_LIST[0].name,null);
+window.changeEXR=dir=>{exrIndex=(exrIndex+dir+EXR_LIST.length)%EXR_LIST.length;const e=EXR_LIST[exrIndex];loadEXRFromPath(e.path,e.name,e.msg);};
+window.uploadEXR=inp=>{const f=inp.files[0];if(!f)return;const url=URL.createObjectURL(f),name=f.name.replace('.exr','');EXR_LIST.push({name,path:url,msg:'Ooh new place! 🌟 Mujhe yeh background pasand aaya!'});exrIndex=EXR_LIST.length-1;const e=EXR_LIST[exrIndex];loadEXRFromPath(e.path,e.name,e.msg);inp.value='';};
+
+const clock=new THREE.Clock();let mouthOpen=0,mouthTarget=0;
+let blinkTimer=0,blinkInterval=3,isBlinking=false,blinkT=0;
+const bones={};let mainModel=null,mainMixer=null,idleAction=null;
+let actionModel=null,actionMixer=null,actionBusy=false;
+let modelHeight=1.7,ZOOM_MIN=.5,ZOOM_MAX=10,groundMesh=null;
+const gltfLoader=new GLTFLoader();
+const PRIVATE_KW=['breast','chest','bra','butt','hips','pelvis','crotch','groin','boob','torso_low','body_low','underwear','bikini','panty','bum','ass','thigh','intimate','private','genital','waist_low'];
+
+function addGround(y){if(groundMesh)scene.remove(groundMesh);const geo=new THREE.PlaneGeometry(60,60),mat=new THREE.ShadowMaterial({opacity:.45});groundMesh=new THREE.Mesh(geo,mat);groundMesh.rotation.x=-Math.PI/2;groundMesh.position.y=y;groundMesh.receiveShadow=true;scene.add(groundMesh);}
+function enableShadows(m){m.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});}
+function placeOnGround(m){m.position.y=0;m.updateMatrixWorld(true);const b=new THREE.Box3().setFromObject(m);if(isFinite(b.min.y)&&b.min.y!==0)m.position.y=-b.min.y;m.updateMatrixWorld(true);return new THREE.Box3().setFromObject(m);}
+function collectBones(m){m.traverse(o=>{if(o.isBone||o.type==='Bone')bones[o.name]=o;});}
+
+function triggerAngryReaction(){
+    const line=ANGRY_LINES[Math.floor(Math.random()*ANGRY_LINES.length)];
+    const f=document.getElementById('angry-flash');
+    f.style.display='block';f.style.animation='none';void f.offsetWidth;f.style.animation='flashAnim .6s ease-out forwards';setTimeout(()=>f.style.display='none',700);
+    document.getElementById('reply').innerText=line;speakText(line);window.triggerAction('angry');
+}
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
+function getXY(e){const rect=renderer.domElement.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;return{x:((cx-rect.left)/rect.width)*2-1,y:-((cy-rect.top)/rect.height)*2+1};}
+function onCanvasClick(e){const am=(actionModel&&actionModel.visible)?actionModel:mainModel;if(!am)return;const{x,y}=getXY(e);pointer.set(x,y);raycaster.setFromCamera(pointer,camera);const meshes=[];am.traverse(o=>{if(o.isMesh)meshes.push(o);});const hits=raycaster.intersectObjects(meshes,false);if(!hits.length)return;const hn=(hits[0].object.name||'').toLowerCase(),hy=hits[0].point.y;if(PRIVATE_KW.some(k=>hn.includes(k))){triggerAngryReaction();return;}const top=modelHeight;if((hy>=top*.62&&hy<=top*.78)||(hy>=top*.38&&hy<=top*.62))triggerAngryReaction();}
+renderer.domElement.addEventListener('click',onCanvasClick);renderer.domElement.addEventListener('touchend',onCanvasClick,{passive:true});
+
+function loadMainModel(cb){gltfLoader.load(GLB_MAIN,gltf=>{mainModel=gltf.scene;const b0=new THREE.Box3().setFromObject(mainModel),ct=b0.getCenter(new THREE.Vector3());mainModel.position.x-=ct.x;mainModel.position.z-=ct.z;scene.add(mainModel);if(gltf.animations&&gltf.animations.length){mainMixer=new THREE.AnimationMixer(mainModel);idleAction=mainMixer.clipAction(gltf.animations[0]);idleAction.setLoop(THREE.LoopRepeat,Infinity);idleAction.play();mainMixer.update(.016);}const box=placeOnGround(mainModel),size=box.getSize(new THREE.Vector3());modelHeight=size.y;const md=Math.max(size.x,size.y,size.z);enableShadows(mainModel);collectBones(mainModel);ZOOM_MIN=md*.35;ZOOM_MAX=md*4.5;camera.near=md*.005;camera.far=md*150;camera.updateProjectionMatrix();camera.position.set(0,modelHeight*.55,md*2);controls.target.set(0,modelHeight*.42,0);controls.minDistance=ZOOM_MIN;controls.maxDistance=ZOOM_MAX;controls.update();const sl=md*2.5;dirLight.shadow.camera.left=-sl;dirLight.shadow.camera.right=sl;dirLight.shadow.camera.top=sl*1.4;dirLight.shadow.camera.bottom=-sl*.3;dirLight.shadow.camera.far=md*40;dirLight.shadow.camera.updateProjectionMatrix();addGround(0);if(cb)cb();},undefined,e=>console.error('GLB:',e));}
+
+function loadActionGLB(path){if(actionBusy)return;actionBusy=true;if(mainModel)mainModel.visible=false;if(mainMixer)mainMixer.stopAllAction();cleanupAction();gltfLoader.load(path,gltf=>{actionModel=gltf.scene;const b0=new THREE.Box3().setFromObject(actionModel),ct=b0.getCenter(new THREE.Vector3());actionModel.position.x-=ct.x;actionModel.position.z-=ct.z;scene.add(actionModel);if(gltf.animations&&gltf.animations.length){actionMixer=new THREE.AnimationMixer(actionModel);const act=actionMixer.clipAction(gltf.animations[0]);act.setLoop(THREE.LoopOnce,1);act.clampWhenFinished=false;act.reset().play();actionMixer.update(.016);actionMixer.addEventListener('finished',()=>returnToIdle());}else returnToIdle();placeOnGround(actionModel);enableShadows(actionModel);collectBones(actionModel);actionBusy=false;},undefined,e=>{console.error('Action:',e);returnToIdle();actionBusy=false;});}
+function cleanupAction(){if(actionModel){scene.remove(actionModel);actionModel=null;}if(actionMixer){actionMixer.stopAllAction();actionMixer=null;}}
+function returnToIdle(){cleanupAction();if(mainModel){mainModel.visible=true;collectBones(mainModel);}if(mainMixer&&idleAction){idleAction.reset();idleAction.setLoop(THREE.LoopRepeat,Infinity);idleAction.play();}document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('active'));document.getElementById('btn-idle').classList.add('active');}
+window.triggerAction=action=>{document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('active'));const btn=document.getElementById('btn-'+action);if(btn)btn.classList.add('active');if(action==='idle'){returnToIdle();return;}const path=window.ACTION_GLBS[action];if(!path){returnToIdle();return;}loadActionGLB(path);};
+
+function animate(){requestAnimationFrame(animate);const dt=clock.getDelta(),t=clock.elapsedTime;if(mainMixer&&mainModel&&mainModel.visible)mainMixer.update(dt);if(actionMixer&&actionModel)actionMixer.update(dt);mouthTarget=window._isSpeaking?.5+.5*Math.sin(t*14):0;mouthOpen+=(mouthTarget-mouthOpen)*Math.min(dt*20,1);if(bones['mixamorig_Head'])bones['mixamorig_Head'].rotation.x+=mouthOpen*.12;blinkTimer+=dt;if(!isBlinking&&blinkTimer>=blinkInterval){isBlinking=true;blinkT=0;blinkTimer=0;blinkInterval=2.5+Math.random()*3;}if(isBlinking){blinkT+=dt/.12;const bv=blinkT<.5?blinkT*2:2-blinkT*2,sy=1-.92*Math.max(0,bv);if(bones['mixamorig_LeftEye'])bones['mixamorig_LeftEye'].scale.y=sy;if(bones['mixamorig_RightEye'])bones['mixamorig_RightEye'].scale.y=sy;if(blinkT>=1){isBlinking=false;if(bones['mixamorig_LeftEye'])bones['mixamorig_LeftEye'].scale.y=1;if(bones['mixamorig_RightEye'])bones['mixamorig_RightEye'].scale.y=1;}}const br=Math.sin(t*Math.PI*2*.35)*.01;if(bones['mixamorig_Spine1']){bones['mixamorig_Spine1'].scale.x=1+br*.5;bones['mixamorig_Spine1'].scale.z=1+br;}if(bones['mixamorig_Spine2']){bones['mixamorig_Spine2'].scale.x=1+br*.3;bones['mixamorig_Spine2'].scale.z=1+br*.6;}controls.update();renderer.render(scene,camera);}
+loadMainModel(()=>{document.getElementById('btn-idle').classList.add('active');animate();});
+window.addEventListener('resize',()=>{const cont=renderer.domElement.parentElement;if(!cont)return;const w=cont.clientWidth,h=cont.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);});
+</script>
+</body>
+</html>

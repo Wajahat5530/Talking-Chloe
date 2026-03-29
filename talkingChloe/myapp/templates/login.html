@@ -1,0 +1,555 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login — Talking Chloe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    {% include 'navbar.html' %}
+
+    <style>
+    :root {
+        --accent: #7b8fff;
+        --accent2: #ff6eb4;
+        --glass: rgba(15,15,35,0.72);
+        --glass-border: rgba(100,120,255,0.18);
+        --text-primary: #e8eaff;
+        --text-muted: #7a80aa;
+        --input-bg: rgba(255,255,255,0.05);
+        --input-border: rgba(100,120,255,0.22);
+        --danger: #ff4d6d;
+        --success: #22d98a;
+        --radius: 18px;
+    }
+    body.light-mode {
+        --glass: rgba(255,255,255,0.88);
+        --glass-border: rgba(80,96,220,0.2);
+        --text-primary: #1a1a3a;
+        --text-muted: #5a6080;
+        --input-bg: rgba(80,96,220,0.05);
+        --input-border: rgba(80,96,220,0.2);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #080814;
+        min-height: 100vh;
+        display: flex; 
+        flex-direction: column;
+        color: var(--text-primary);
+        overflow-x: hidden;
+    }
+    body.light-mode { background: #f0f0ff; }
+
+    /* bg orbs */
+    .bg-orb {
+        position: fixed; 
+        border-radius: 50%;
+        filter: blur(80px); 
+        opacity: 0.18; 
+        pointer-events: none; 
+        z-index: 0;
+        animation: orbFloat 8s ease-in-out infinite alternate;
+    }
+    .bg-orb1 { 
+        width:500px; height:500px; 
+        background:#5060ee; 
+        top:-100px; left:-100px; 
+    }
+    .bg-orb2 { 
+        width:400px; height:400px; 
+        background:#d040a0; 
+        bottom:-80px; right:-80px; 
+        animation-delay:3s; 
+    }
+    @keyframes orbFloat { 
+        from{transform:translateY(0) scale(1);} 
+        to{transform:translateY(30px) scale(1.05);} 
+    }
+
+    /* LOGIN CARD */
+    .login-wrap {
+        flex:1; 
+        display:flex; 
+        align-items:center; 
+        justify-content:center;
+        padding: 40px 16px; 
+        position:relative; 
+        z-index:1;
+    }
+    .login-card {
+        width: 100%; 
+        max-width: 440px;
+        background: var(--glass);
+        backdrop-filter: blur(24px) saturate(1.6);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius);
+        padding: 44px 40px 40px;
+        box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+        animation: slideUp 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes slideUp { 
+        from{opacity:0;transform:translateY(28px);} 
+        to{opacity:1;transform:translateY(0);} 
+    }
+
+    .login-hint {
+        text-align: center; 
+        margin-bottom: 28px;
+        font-size: 0.82rem; 
+        color: var(--text-muted);
+        letter-spacing: 0.04em; 
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--glass-border);
+        padding-bottom: 18px;
+    }
+    .login-hint strong { 
+        color: var(--accent); 
+        font-size: 0.9rem; 
+    }
+
+    .card-avatar {
+        width: 72px; 
+        height: 72px; 
+        border-radius: 50%; 
+        margin: 0 auto 18px;
+        background: linear-gradient(135deg, #5060ee, #ff60b0);
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        font-size: 2rem;
+        box-shadow: 0 4px 24px rgba(80,96,238,0.4);
+        position: relative;
+    }
+    .card-avatar::after {
+        content:''; 
+        position:absolute; 
+        inset:-3px;
+        border-radius:50%; 
+        border:2px solid rgba(120,130,255,0.4);
+    }
+    .card-title {
+        text-align: center; 
+        margin-bottom: 6px;
+        font-size: 1.6rem; 
+        font-weight: 800;
+        background: linear-gradient(135deg, #a0c8ff, #ff80d0);
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent;
+    }
+    .card-sub {
+        text-align: center; 
+        color: var(--text-muted);
+        font-size: 0.88rem; 
+        margin-bottom: 28px;
+    }
+
+    /* Tabs */
+    .auth-tabs {
+        display: flex; 
+        border-radius: 12px; 
+        overflow: hidden;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--glass-border);
+        margin-bottom: 24px;
+    }
+    .auth-tab {
+        flex:1; 
+        padding: 10px; 
+        text-align: center;
+        font-size: 0.88rem; 
+        font-weight: 600; 
+        cursor: pointer;
+        color: var(--text-muted); 
+        border: none; 
+        background: none;
+        transition: all 0.22s;
+    }
+    .auth-tab.active {
+        background: linear-gradient(135deg, rgba(80,96,238,0.3), rgba(160,80,255,0.3));
+        color: var(--text-primary);
+        border-radius: 10px;
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+        display: block; 
+        font-size: 0.8rem; 
+        font-weight: 600;
+        color: var(--text-muted); 
+        margin-bottom: 7px;
+        letter-spacing: 0.04em;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap i {
+        position: absolute; 
+        left: 14px; 
+        top: 50%; 
+        transform: translateY(-50%);
+        color: var(--text-muted); 
+        font-size: 0.9rem; 
+        pointer-events: none;
+    }
+    .form-input {
+        width: 100%; 
+        padding: 12px 14px 12px 40px;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 12px; 
+        color: var(--text-primary);
+        font-size: 0.95rem; 
+        outline: none;
+        transition: all 0.22s;
+    }
+    .form-input:focus {
+        border-color: var(--accent);
+        background: rgba(120,130,255,0.1);
+        box-shadow: 0 0 0 3px rgba(120,130,255,0.15);
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .toggle-pw {
+        position: absolute; 
+        right: 12px; 
+        top: 50%; 
+        transform: translateY(-50%);
+        background: none; 
+        border: none; 
+        color: var(--text-muted);
+        cursor: pointer; 
+        font-size: 0.9rem; 
+        padding: 4px;
+    }
+    .toggle-pw:hover { color: var(--accent); }
+
+    .form-msg {
+        font-size: 0.82rem; 
+        margin-top: 6px;
+        padding: 8px 12px; 
+        border-radius: 8px; 
+        display: none;
+    }
+    .form-msg.error { 
+        display:block; 
+        color:#ff6080; 
+        background:rgba(255,77,109,0.12); 
+        border:1px solid rgba(255,77,109,0.25); 
+    }
+    .form-msg.success { 
+        display:block; 
+        color:var(--success); 
+        background:rgba(34,217,138,0.1); 
+        border:1px solid rgba(34,217,138,0.2); 
+    }
+
+    .submit-btn {
+        width: 100%; 
+        padding: 13px;
+        background: linear-gradient(135deg, #5060ee, #9050ff);
+        color: #fff; 
+        border: none; 
+        border-radius: 12px;
+        font-size: 1rem; 
+        font-weight: 700; 
+        cursor: pointer;
+        transition: all 0.22s; 
+        margin-top: 8px;
+        box-shadow: 0 4px 20px rgba(80,96,238,0.4);
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 8px;
+    }
+    .submit-btn:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 28px rgba(80,96,238,0.55); 
+    }
+    .submit-btn:disabled { 
+        opacity: 0.6; 
+        cursor: not-allowed; 
+        transform: none; 
+    }
+
+    .or-divider {
+        display: flex; 
+        align-items: center; 
+        gap: 12px;
+        color: var(--text-muted); 
+        font-size: 0.8rem; 
+        margin: 20px 0;
+    }
+    .or-divider::before, .or-divider::after {
+        content:''; 
+        flex:1; 
+        height:1px; 
+        background: var(--glass-border);
+    }
+
+    .features-row {
+        display: flex; 
+        gap: 10px; 
+        margin-top: 24px;
+    }
+    .feature-pill {
+        flex:1; 
+        padding: 10px 8px; 
+        text-align: center;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        font-size: 0.72rem; 
+        color: var(--text-muted); 
+        line-height: 1.4;
+    }
+    .feature-pill i { 
+        display:block; 
+        font-size:1.1rem; 
+        margin-bottom:4px; 
+        color:var(--accent); 
+    }
+
+    @keyframes spin { 
+        to { transform: rotate(360deg); } 
+    }
+    .spinner { 
+        animation: spin 0.8s linear infinite; 
+        display:inline-block; 
+    }
+    </style>
+</head>
+<body>
+<div class="bg-orb bg-orb1"></div>
+<div class="bg-orb bg-orb2"></div>
+
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-hint">
+            <strong><i class="fa-solid fa-lock-open"></i> Login for better experience</strong><br>
+            <span>Chloe remembers you &amp; grows with you</span>
+        </div>
+
+        <div class="card-avatar">💝</div>
+        <div class="card-title">Welcome Back</div>
+        <div class="card-sub">Chloe has been waiting for you, jaan 😘</div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+            <button class="auth-tab" id="tab-register" onclick="switchTab('register')">
+                <i class="fa-solid fa-user-plus"></i> Register
+            </button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="form-login">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-user"></i>
+                    <input class="form-input" type="text" id="login-username" placeholder="Apna naam likho..." autocomplete="username"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input class="form-input" type="password" id="login-password" placeholder="Password daalo..." autocomplete="current-password"/>
+                    <button class="toggle-pw" type="button" onclick="togglePw('login-password',this)"><i class="fa-solid fa-eye"></i></button>
+                </div>
+            </div>
+            <div class="form-msg" id="login-msg"></div>
+            <button class="submit-btn" id="login-btn" onclick="doLogin()">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="form-register" style="display:none;">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input class="form-input" type="text" id="reg-name" placeholder="Tumhara naam..."/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-user"></i>
+                    <input class="form-input" type="text" id="reg-username" placeholder="Unique username..."/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input class="form-input" type="email" id="reg-email" placeholder="Email address..."/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input class="form-input" type="password" id="reg-password" placeholder="Strong password..."/>
+                    <button class="toggle-pw" type="button" onclick="togglePw('reg-password',this)"><i class="fa-solid fa-eye"></i></button>
+                </div>
+            </div>
+            <div class="form-msg" id="reg-msg"></div>
+            <button class="submit-btn" id="reg-btn" onclick="doRegister()">
+                <i class="fa-solid fa-user-plus"></i> Create Account
+            </button>
+        </div>
+
+        <div class="or-divider">or continue as guest</div>
+        <a href="/" style="display:block;text-align:center;color:var(--text-muted);font-size:0.85rem;text-decoration:none;">
+            <i class="fa-solid fa-ghost"></i> Skip Login &amp; Chat Anonymously
+        </a>
+
+        <div class="features-row">
+            <div class="feature-pill"><i class="fa-solid fa-brain"></i>Chloe remembers you</div>
+            <div class="feature-pill"><i class="fa-solid fa-history"></i>Chat history saved</div>
+            <div class="feature-pill"><i class="fa-solid fa-shield-halved"></i>Private &amp; secure</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(t){
+    document.getElementById('form-login').style.display   = (t==='login') ? 'block' : 'none';
+    document.getElementById('form-register').style.display= (t==='register') ? 'block' : 'none';
+    document.getElementById('tab-login').classList.toggle('active', t==='login');
+    document.getElementById('tab-register').classList.toggle('active', t==='register');
+}
+
+function togglePw(id, btn){
+    var inp = document.getElementById(id);
+    var show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.innerHTML = show ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+}
+
+function showMsg(id, msg, type){
+    var el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'form-msg ' + type;
+}
+
+async function doLogin(){
+    var u = document.getElementById('login-username').value.trim();
+    var p = document.getElementById('login-password').value.trim();
+    if(!u || !p){ 
+        showMsg('login-msg','Please fill all fields','error'); 
+        return; 
+    }
+    var btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch spinner"></i> Logging in...';
+
+    try{
+        var r = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({username: u, password: p})
+        });
+        var d = await r.json();
+        if(d.success){
+            showMsg('login-msg','Login successful! Redirecting... 💝','success');
+            setTimeout(() => window.location.href = '/', 1200);
+        } else {
+            showMsg('login-msg', d.error || 'Invalid credentials', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login';
+        }
+    } catch(e){
+        showMsg('login-msg','Server error, try again','error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login';
+    }
+}
+
+async function doRegister(){
+    var name = document.getElementById('reg-name').value.trim();
+    var u = document.getElementById('reg-username').value.trim();
+    var email = document.getElementById('reg-email').value.trim();
+    var p = document.getElementById('reg-password').value.trim();
+
+    if(!name || !u || !email || !p){
+        showMsg('reg-msg','Please fill all fields','error'); 
+        return;
+    }
+    if(p.length < 6){
+        showMsg('reg-msg','Password must be 6+ characters','error'); 
+        return;
+    }
+
+    var btn = document.getElementById('reg-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch spinner"></i> Creating...';
+
+    try{
+        var r = await fetch('/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({name, username:u, email, password:p})
+        });
+        var d = await r.json();
+        if(d.success){
+            showMsg('reg-msg','Account created! Logging you in... 💝','success');
+            setTimeout(() => window.location.href = '/', 1400);
+        } else {
+            showMsg('reg-msg', d.error || 'Registration failed', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+        }
+    } catch(e){
+        showMsg('reg-msg','Server error, try again','error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account';
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('keypress', function(e){
+    if(e.key === 'Enter'){
+        if(document.getElementById('tab-login').classList.contains('active')){
+            doLogin();
+        } else {
+            doRegister();
+        }
+    }
+});
+
+// Theme persist
+(function(){
+    if (localStorage.getItem('chloe-theme') === 'light') {
+        document.body.classList.add('light-mode');
+    }
+})();
+</script>
+</body>
+</html>
