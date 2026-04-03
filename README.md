@@ -2,6 +2,16 @@
 
 Talking Chloe is an AI-powered conversational assistant built using Django, designed to deliver personalized, emotionally engaging chat experiences with a 3D interactive interface.
 
+
+![Python](https://img.shields.io/badge/Python-3670A0?style=flat&logo=python&logoColor=ffdd54)
+![Django](https://img.shields.io/badge/Django-%23092E20.svg?style=flat&logo=django&logoColor=white)
+![Groq AI](https://img.shields.io/badge/Groq_AI-FF6B35?style=flat&logo=ai&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-%23323330.svg?style=flat&logo=javascript&logoColor=%23F7DF1E)
+![Three.js](https://img.shields.io/badge/Three.js-000000?style=flat&logo=three.js&logoColor=white)
+![GLB](https://img.shields.io/badge/GLB_3D_Model-4CAF50?style=flat&logo=google-drive&logoColor=white)
+![EXR](https://img.shields.io/badge/EXR_HDRI-FF9800?style=flat&logo=adobe&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=flat&logo=sqlite&logoColor=white)
+
 ---
 
 ## 🚀 Features
