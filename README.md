@@ -30,12 +30,16 @@ Talking Chloe is an AI-powered conversational assistant built using Django, desi
 ### 🏠 Home Interface
 ![Home](Screenshot/Screenshot%202026-03-29%20090127.png)
 
+### 📞 Video Calling Feature
+![V Calling](Screenshot/V%20Calling.png)
+
 ### 🔐 Login Page
 ![Login](Screenshot/login%20screenshoot.png)
 
 ### 📄 About Page
 ![About](Screenshot/about%20us%20screenshoot.png)
 
+---
 ---
 
 ## ⚙️ Setup Instructions
